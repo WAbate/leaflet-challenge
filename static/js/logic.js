@@ -48,3 +48,70 @@ function createFeatures(earthquakeData) {
   // Creating the earthquakes map with our data
   createMap(earthquakes);
 }
+
+function createMap(earthquakes) {
+
+    // Creating the tileLayers
+    var streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    })
+  
+    var topoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+    });
+  
+    // Creating the baseMap giving optional Street Map / Topographic Map views alongside optional Earthquakes / Tectonic Plates data
+    var baseMaps = {
+      "Street Map": streetMap,
+      "Topographic Map": topoMap
+    };
+  
+    let tectPlates = new L.LayerGroup()
+    let overlayMaps = {
+      Earthquakes: earthquakes,
+      'Tectonic Plates': tectPlates
+    };
+    
+  // Creating a map with the effected earthquake area layers displayed with colored circle markers overlapping the street layers
+  var myMap = L.map("map", {
+    center: [
+      37.09, -95.71
+    ],
+    zoom: 5,
+    layers: [streetMap, earthquakes]
+  });
+
+  // Creating and adding layer control to the map
+  L.control.layers(baseMaps, overlayMaps, {
+    collapsed: false
+  }).addTo(myMap);
+
+  // Creating a legend displaying earthquake size associated with certain colors
+  let legend = L.control({position: 'bottomright'});
+  
+  legend.onAdd = function(myMap) {
+
+    let div = L.DomUtil.create('div', 'info legend'),
+        grades = [0, 2.5, 5, 7],
+        colors = ['red', 'yellow', 'yellowgreen', 'green'];
+
+    for (let i = 0; i < grades.length; i++) {
+        div.innerHTML +=
+        '<i style="background:' + colors[i] + '"></i> ' + 
+        grades[i] + (grades[i+1] ? `&ndash;` + grades[i+1] +'<br>' : '+');
+    }
+
+    return div;
+  };
+
+  legend.addTo(myMap);
+
+  d3.json('https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json').then(function (data) {
+
+    L.geoJSON(data, {
+
+    }).addTo(tectPlates);
+
+  tectPlates.addTo(myMap)
+  });
+}
