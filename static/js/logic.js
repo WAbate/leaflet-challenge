@@ -21,3 +21,30 @@ function createFeatures(earthquakeData) {
       else 
       return 'green'
     };
+
+    function changeSize(features) {
+        if (features.geometry.coordinates[2] > 100)
+        return 0
+        else return features.geometry.coordinates[2]
+      };
+    // Returning a colored circle marker according to the size of the earthquake and of the effected area of it / setting opacity, radius, fillcolor, etc.
+      let earthquakes = L.geoJSON(earthquakeData, {
+        onEachFeature: onEachFeature,
+        pointToLayer: function(features, latlng) {
+            return L.circleMarker(latlng)
+        },
+        style: function geojsonMarkerOptions(features) {
+            return {
+                radius: changeSize(features),
+                fillColor: changeColor(features),
+                color: '#000',
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.6
+            }
+        }
+      });
+
+  // Creating the earthquakes map with our data
+  createMap(earthquakes);
+}
