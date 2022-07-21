@@ -93,7 +93,7 @@ function createMap(earthquakes) {
 
     let div = L.DomUtil.create('div', 'info legend'),
         grades = [0, 2.5, 5, 7],
-        colors = ['red', 'yellow', 'yellowgreen', 'green'];
+        colors = ['green', 'yellowgreen', 'yellow', 'red'];
 
     for (let i = 0; i < grades.length; i++) {
         div.innerHTML +=
